@@ -2,7 +2,7 @@ package sharp4j.core;
 
 // commons-lang 使えば良いじゃんってのはあるけど、外部jar非依存にしたかったのと、自分好みにアレしたかったので。
 
-public final class JdkUtil extends StaticClass
+public final class SharpUtil extends StaticClass
 {
 	public static final <T> T nvl(T value, T alter)
 	{
