@@ -3,7 +3,6 @@ package sharp4j.util.io;
 
 import java.io.BufferedReader;
 
-@Deprecated // 取り敢えずβ版でスクラッチしただけ。
 public class CrLfReader implements AutoCloseable
 {
 	// TODO：内部での状態管理がイケてないので、BuffとReadのステータス管理を内部クラス化したい。
