@@ -5,13 +5,10 @@ import java.io.BufferedReader;
 
 public class CrLfReader implements AutoCloseable
 {
-	private final QuietBufferedReader reader;
-	private final StringBuilder sb;
-	
-	
 	private class Buffer
 	{
 		private static final int BUFF_SIZE = 256;
+		
 		private final char[] temp = new char[BUFF_SIZE];
 		
 		private int size = 0;
@@ -42,14 +39,16 @@ public class CrLfReader implements AutoCloseable
 		}
 	}
 	
+	private final QuietBufferedReader reader;
 	private final Buffer buffer;
+	private final StringBuilder sb;
 	
 	
 	public CrLfReader(BufferedReader reader)
 	{
 		this.reader = new QuietBufferedReader( reader );
-		this.sb = new StringBuilder();
 		this.buffer = new Buffer();
+		this.sb = new StringBuilder();
 	}
 	
 	
@@ -57,7 +56,7 @@ public class CrLfReader implements AutoCloseable
 	{
 		this.sb.setLength( 0 );
 		
-		if ( this.read() )
+		if ( this.build() )
 		{
 			return this.sb.toString();
 		}
@@ -70,20 +69,23 @@ public class CrLfReader implements AutoCloseable
 	
 	boolean end = false;
 	
-	private boolean read()
+	private boolean build()
 	{
-		if ( this.end ) return false;
-		
-		if ( readline(false) ) return true;
-		
-		this.end = true;
-		return true;
+		if ( this.end )
+		{
+			return false;
+		}
+		else
+		{
+			this.readline( false );
+			return true;
+		}
 	}
-
+	
 	private static final char CR = '\r';
 	private static final char LF = '\n';
 	
-	private boolean readline(boolean cr)
+	private void readline(boolean cr)
 	{
 		// ■バッファ読み込み済みの文字を CrLf が完成する所まで読み進める。
 		while ( buffer.next() )
@@ -93,7 +95,7 @@ public class CrLfReader implements AutoCloseable
 			if ( cr )
 			{
 				// ★ CrLf が完成 ★
-				if ( LF == c ) return true;
+				if ( LF == c ) return;
 				
 				// 前回のCrを一手遅れて格納。
 				sb.append( CR );
@@ -112,11 +114,11 @@ public class CrLfReader implements AutoCloseable
 		
 		if ( buffer.fill() )
 		{
-			return readline( cr ); // 再帰処理
+			readline( cr ); // 再帰処理
 		}
 		else
 		{
-			return false;
+			this.end = true;
 		}
 	}
 	
