@@ -5,19 +5,13 @@ import java.io.BufferedReader;
 
 public class CrLfReader implements AutoCloseable
 {
-	private static final char CR = '\r';
-	private static final char LF = '\n';
-	private static final char EMPTY = '\0';
-	
-	private static final int BUFF_SIZE = 256;
-	
-	
 	private final QuietBufferedReader reader;
 	private final StringBuilder sb;
 	
 	
 	private class Buffer
 	{
+		private static final int BUFF_SIZE = 256;
 		private final char[] temp = new char[BUFF_SIZE];
 		
 		private int size = 0;
@@ -37,9 +31,14 @@ public class CrLfReader implements AutoCloseable
 			return !eof;
 		}
 		
+		public boolean next()
+		{
+			return index < size;
+		}
+		
 		public char seek()
 		{
-			return index < size ? temp[index++] : EMPTY;
+			return temp[index++];
 		}
 	}
 	
@@ -75,42 +74,50 @@ public class CrLfReader implements AutoCloseable
 	{
 		if ( this.end ) return false;
 		
-		boolean cr = false;
+		if ( readline(false) ) return true;
 		
-		do
-		{
-			char c;
-			while ( EMPTY != (c = buffer.seek()) )
-			{
-				if ( cr )
-				{
-					// 前回のCrと今回のLfでCrLfが完成。
-					if ( LF == c )
-					{
-						return true;
-					}
-					// 前回のCrを一手遅れて格納。
-					else
-					{
-						sb.append( CR );
-					}
-				}
-				
-				// CR フラグを更新。
-				cr = CR == c;
-				
-				if ( !cr )
-				{
-					sb.append( c );
-				}
-			}
-		}
-		while ( buffer.fill() );
-		
-		
-		// fill で false が帰ってきた周回で end フラグを立てる。
 		this.end = true;
 		return true;
+	}
+
+	private static final char CR = '\r';
+	private static final char LF = '\n';
+	
+	private boolean readline(boolean cr)
+	{
+		// ■バッファ読み込み済みの文字を CrLf が完成する所まで読み進める。
+		while ( buffer.next() )
+		{
+			final char c = buffer.seek();
+			
+			if ( cr )
+			{
+				// ★ CrLf が完成 ★
+				if ( LF == c ) return true;
+				
+				// 前回のCrを一手遅れて格納。
+				sb.append( CR );
+			}
+			
+			// CR フラグを更新。
+			cr = CR == c;
+			
+			if ( !cr )
+			{
+				sb.append( c );
+			}
+		}
+		
+		// ■CrLf が完成せずバッファ読み込みループを抜けてきた場合
+		
+		if ( buffer.fill() )
+		{
+			return readline( cr ); // 再帰処理
+		}
+		else
+		{
+			return false;
+		}
 	}
 	
 	
