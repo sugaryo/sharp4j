@@ -10,7 +10,7 @@ import java.io.Reader;
  * <p>
  * <b>■概要：</b><br>
  * CrLf({@code \r\n}) のみを改行コードとして認識するストリームリーダです。<br>
- * 単体で出現する Cr({@code \r}) 及び Lf({@code \n}) は、単なるを１文字として扱います。<br>
+ * 単体で出現する Cr({@code \r}) 及び Lf({@code \n}) は、単なる１文字として扱います。<br>
  * </p>
  * 
  * @author sugaryo
@@ -163,12 +163,39 @@ public class CrLfReader implements AutoCloseable
 	 * このメソッドの基本的な使用方法は {@link BufferedReader#readLine()} と同じです。<br>
 	 * <b>CrLf({@code \r\n})</b> だけを <b>1行の終端</b> として扱う点が異なります。<br>
 	 * </p>
+	 * 
 	 * <p>
 	 * <b>■読み込み処理の仕様：</b><br>
 	 * 行データ内に含まれる単独の <b>Cr({@code \r})</b> 及び <b>Lf({@code \n})</b> は、
 	 * そのまま戻り値の {@link String} に含まれます。<br>
 	 * ファイルに空行が含まれる場合は、そのまま空文字列（{@code ""}）を返します。<br>
 	 * ファイルの終端に達した場合、ストップコードとして {@code null} を返します。<br>
+	 * </p>
+	 * 
+	 * <p>
+	 * <b>■サンプルコード：</b><br>
+	 * <pre>
+	 * // BufferdReader を使用した場合
+	 * try ( BufferdReader reader = new BufferdReader() ) {
+	 *   
+	 *   String line;
+	 *   while ( null != (line = reader.readLine()) ) {
+	 *     // １行の処理
+	 *   }
+	 * }
+	 * 
+	 * // CrLfReader を使用した場合
+	 * try ( BufferdReader reader = new BufferdReader();
+	 *       CrLfReader crlf = new CrLfReader(reader); ) {
+	 *   
+	 *   String line;
+	 *   while ( null != (line = crlf.next()) ) {
+	 *     // １行の処理
+	 *   } 
+	 * }
+	 * 
+	 * <b>※ BufferedReaderに対するパラメータ指定は省略。</b>
+	 * </pre>
 	 * </p>
 	 * 
 	 * @return 
