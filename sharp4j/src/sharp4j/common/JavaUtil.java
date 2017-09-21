@@ -25,6 +25,11 @@ public final class JavaUtil
 	
 	// いわゆる Math系：
 	
+	public static <T extends Comparable<T>> T max(T x, T y)
+	{
+		return x.compareTo( y ) > 0 ? x : y;
+	}
+	
 	public static int max(int x, int y)
 	{
 		return x > y ? x : y;
@@ -35,9 +40,10 @@ public final class JavaUtil
 		return x > y ? x : y;
 	}
 	
-	public static <T extends Comparable<T>> T max(T x, T y)
+	
+	public static <T extends Comparable<T>> T min(T x, T y)
 	{
-		return x.compareTo( y ) > 0 ? x : y;
+		return x.compareTo( y ) < 0 ? x : y;
 	}
 	
 	public static int min(int x, int y)
@@ -50,11 +56,47 @@ public final class JavaUtil
 		return x < y ? x : y;
 	}
 	
-	public static <T extends Comparable<T>> T min(T x, T y)
+	
+	// いわゆる StringUtils系：
+	
+	public static boolean isEmpty(String value)
 	{
-		return x.compareTo( y ) < 0 ? x : y;
+		return null == value || value.isEmpty();
+	}
+	
+	public static boolean notEmpty(String value)
+	{
+		return !isEmpty( value );
 	}
 	
 	
-	// いわゆる StringUtils系：
+	public static String join(String by, Iterable<String> values)
+	{
+		StringBuilder sb = new StringBuilder();
+		
+		String add = "";
+		for ( String value : values )
+		{
+			sb.append( add );
+			sb.append( value );
+			add = by;
+		}
+		
+		return sb.toString();
+	}
+	
+	public static String join(String by, String... values)
+	{
+		StringBuilder sb = new StringBuilder();
+		
+		String add = "";
+		for ( String value : values )
+		{
+			sb.append( add );
+			sb.append( value );
+			add = by;
+		}
+		
+		return sb.toString();
+	}
 }
