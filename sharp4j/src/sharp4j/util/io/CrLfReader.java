@@ -2,7 +2,7 @@ package sharp4j.util.io;
 
 import static sharp4j.common.JavaUtil.*;
 
-import java.io.BufferedReader;
+import java.io.Reader;
 
 public class CrLfReader implements AutoCloseable
 {
@@ -48,17 +48,17 @@ public class CrLfReader implements AutoCloseable
 		}
 	}
 	
-	private final QuietBufferedReader reader;
+	private final QuietReader reader;
 	private final Buffer buffer;
 	private final StringBuilder sb;
 	
-	public CrLfReader(BufferedReader reader)
+	public CrLfReader(Reader reader)
 	{
 		this( reader, DEF_SIZE );
 	}
-	public CrLfReader(BufferedReader reader, int bufferSize)
+	public CrLfReader(Reader reader, int bufferSize)
 	{
-		this.reader = new QuietBufferedReader( reader );
+		this.reader = new QuietReader( reader );
 		this.buffer = new Buffer( bufferSize );
 		this.sb = new StringBuilder();
 	}
@@ -125,16 +125,19 @@ public class CrLfReader implements AutoCloseable
 		
 		// ■CrLf が完成せずバッファ読み込みループを抜けてきた場合：
 		
-		// 内部バッファにファイルから追加読み込みを試行。
 		if ( this.buffer.fill() )
 		{
-			// 追加読み込みできた場合は再帰処理してCrLfの完成（またはEOF）を目指す。
 			this.readline( cr );
 		}
-		// ファイル終端に達していた場合、ココまで処理したのがファイルの最終行。
 		else
 		{
-			// end フラグを立てて処理を終わる。
+			if ( cr ) {
+				// ファイルに含まれる最後の文字が CR で、且つバッファの最後だった場合、
+				// 他に sb に詰めるタイミングが無いのでここで詰める。
+				// ※そもそも、単独出現のLFは有り得るが、単独出現のCRって有り得ないので、考慮する必要性が、、、。
+				sb.append( CR );
+			}
+			
 			this.end = true;
 		}
 	}
